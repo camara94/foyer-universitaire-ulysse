@@ -6,6 +6,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 
 
@@ -29,7 +32,9 @@ public class Utilisateur implements Serializable {
 	private String niveau;
 	private String role;
 	
-	
+	@JsonBackReference
+	@ManyToOne
+	private Chambre chambre;
 	
 	
 	
@@ -43,7 +48,7 @@ public class Utilisateur implements Serializable {
 	
 	
 	public Utilisateur(Long id, String nom, String prenom, String cin, String email, String telephone,
-			String departement, String niveau, String role) {
+			String departement, String niveau, String role, Chambre chambre) {
 		super();
 		this.id = id;
 		this.nom = nom;
@@ -54,6 +59,7 @@ public class Utilisateur implements Serializable {
 		this.departement = departement;
 		this.niveau = niveau;
 		this.role = role;
+		this.chambre = chambre;
 	}
 
 
@@ -117,7 +123,16 @@ public class Utilisateur implements Serializable {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
+
+	public Chambre getChambre() {
+		return chambre;
+	}
+
+	public void setChambre(Chambre chambre) {
+		this.chambre = chambre;
+	}
 	
+
 	
 
 }

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import tn.uud.ulysse.models.Chambre;
 import tn.uud.ulysse.models.Utilisateur;
+import tn.uud.ulysse.repositry.ChambreRepository;
 import tn.uud.ulysse.repositry.UtilisateurRepository;
 
 @CrossOrigin("*")
@@ -26,6 +29,9 @@ public class UtilisateurController {
 	
 	@Autowired
 	private UtilisateurRepository utilisateurRepository;
+	
+	@Autowired
+	private ChambreRepository chambreRepository;
 	
 	@GetMapping(value = "/")
 	public ResponseEntity<List<Utilisateur>> getUtisateurs() {
@@ -46,6 +52,8 @@ public class UtilisateurController {
     public void supprimerUtilisateur(@PathVariable Long id) {
     	
     	Utilisateur utilisateur = this.utilisateurRepository.getUtilisateurById(id);
+    	utilisateur.setChambre(null);
+    	this.utilisateurRepository.save(utilisateur);
     	this.utilisateurRepository.delete(utilisateur);
     }
 	
@@ -94,6 +102,33 @@ public class UtilisateurController {
 	                .buildAndExpand(utilisateur1.getId())
 	                .toUri();
 	        return ResponseEntity.created(location).body(utilisateur1);
+	    }
+	 
+	 
+	 @SuppressWarnings("unused")
+	@PatchMapping( value = "/{idUtilisateur}/{idChambre}" )
+	    public ResponseEntity<Utilisateur> reserverUneChambre2( @PathVariable Long idUtilisateur, @PathVariable Long idChambre ) {
+	    	
+	    	
+		 	
+		 	Chambre chambre = this.chambreRepository.getChambreById(idChambre);
+	    	Utilisateur utilisateur = this.utilisateurRepository.getUtilisateurById(idUtilisateur);
+	    	
+	    	chambre.setUtilisateur( utilisateur );
+	    	utilisateur.setChambre(chambre);
+	    	
+	        if (chambre == null)
+	            return ResponseEntity.noContent().build();
+	        
+	        
+	        this.chambreRepository.save( chambre );
+		    this.utilisateurRepository.save( utilisateur );
+	        URI location = ServletUriComponentsBuilder
+	                .fromCurrentRequest()
+	                .path("/{id}")
+	                .buildAndExpand( chambre.getId() )
+	                .toUri();
+	        return ResponseEntity.created(location).body( utilisateur );
 	    }
 
 }
